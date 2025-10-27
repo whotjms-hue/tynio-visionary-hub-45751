@@ -12,6 +12,8 @@ import {
   Quote,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Hero3D } from "@/components/Hero3D";
+import { useWebsiteContent } from "@/hooks/useWebsiteContent";
 import aiDashboard from "@/assets/ai-dashboard-demo.jpg";
 import aiChatbot from "@/assets/ai-chatbot-demo.jpg";
 import aiCrm from "@/assets/ai-crm-demo.jpg";
@@ -22,6 +24,7 @@ import demoMarketing from "@/assets/demo-marketing.png";
 const Home = () => {
   const [isVisible, setIsVisible] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
+  const { getContentValue } = useWebsiteContent("hero");
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -101,7 +104,7 @@ const Home = () => {
         ref={heroRef}
         className="relative min-h-[90vh] flex items-center justify-center bg-gradient-to-br from-primary via-primary-light to-accent overflow-hidden"
       >
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtMS4xLS45LTItMi0ycy0yIC45LTIgMiAuOSAyIDIgMiAyLS45IDItMnptLTIgNmMtMS4xIDAtMiAuOS0yIDJzLjkgMiAyIDIgMi0uOSAyLTItLjktMi0yLTJ6bS0xMiAwYy0xLjEgMC0yIC45LTIgMnMuOSAyIDIgMiAyLS45IDItMi0uOS0yLTItMnptMTIgMTJjLTEuMSAwLTIgLjktMiAyczLjkgMiAyIDIgMi0uOSAyLTItLjktMi0yLTJ6bS0xMiAwYy0xLjEgMC0yIC45LTIgMnMuOSAyIDIgMiAyLS45IDItMi0uOS0yLTItMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
+        <Hero3D />
         
         <div className="container mx-auto px-4 relative z-10">
           <div
@@ -110,20 +113,19 @@ const Home = () => {
             }`}
           >
             <h1 className="text-5xl md:text-7xl font-bold text-primary-foreground mb-6 leading-tight">
-              AI-Integrated Solutions for Modern Business
+              {getContentValue("title") || "AI-Integrated Solutions for Modern Business"}
             </h1>
             <p className="text-xl md:text-2xl text-primary-foreground/90 mb-8 leading-relaxed">
-              Transform your business with cutting-edge AI technology. We build intelligent systems
-              that drive growth and efficiency.
+              {getContentValue("subtitle") || "Transform your business with cutting-edge AI technology. We build intelligent systems that drive growth and efficiency."}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="bg-accent hover:bg-accent-hover text-lg px-8 shadow-accent">
                 <Link to="/portfolio">
-                  View Our Work <ArrowRight className="ml-2" size={20} />
+                  {getContentValue("cta_primary") || "View Our Work"} <ArrowRight className="ml-2" size={20} />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="text-lg px-8 bg-primary-foreground/10 backdrop-blur-sm border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20">
-                <Link to="/contact">Contact Us</Link>
+                <Link to="/contact">{getContentValue("cta_secondary") || "Contact Us"}</Link>
               </Button>
             </div>
           </div>

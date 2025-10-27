@@ -1,26 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, AlertCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Lock } from "lucide-react";
 
-const Admin = () => {
+const Auth = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // This is a placeholder for the admin login
-    // In production, this will be connected to Lovable Cloud authentication
-    toast({
-      title: "Admin Dashboard",
-      description: "Please enable Lovable Cloud to activate the admin dashboard with secure authentication.",
-      variant: "default",
+  useEffect(() => {
+    // Check if user is already logged in
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        navigate("/admin");
+      }
     });
+  }, [navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      if (data.session) {
+        toast({
+          title: "Success",
+          description: "Logged in successfully",
+        });
+        navigate("/admin");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,7 +61,7 @@ const Admin = () => {
           <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-card-foreground mb-2">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold text-card-foreground mb-2">Admin Login</h1>
           <p className="text-muted-foreground">Sign in to manage your website</p>
         </div>
 
@@ -40,7 +71,7 @@ const Admin = () => {
             <Input
               id="email"
               type="email"
-              placeholder="ceo@tynioltd.com"
+              placeholder="admin@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -61,32 +92,13 @@ const Admin = () => {
             />
           </div>
 
-          <Button type="submit" size="lg" className="w-full bg-primary hover:bg-primary-light">
-            Sign In
+          <Button type="submit" size="lg" className="w-full" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
           </Button>
         </form>
-
-        <div className="mt-6 p-4 bg-accent/5 border border-accent/20 rounded-lg">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-accent shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <p className="font-semibold text-card-foreground mb-1">Backend Setup Required</p>
-              <p className="text-muted-foreground">
-                The admin dashboard requires Lovable Cloud to be enabled for secure authentication,
-                database management, and dynamic content editing.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 text-center">
-          <p className="text-xs text-muted-foreground">
-            Protected by enterprise-grade security
-          </p>
-        </div>
       </Card>
     </div>
   );
 };
 
-export default Admin;
+export default Auth;
